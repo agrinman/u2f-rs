@@ -18,3 +18,6 @@ pub mod messages;
 pub mod protocol;
 pub mod authorization;
 mod crypto;
+
+#[cfg(test)]
+mod tests;

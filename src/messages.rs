@@ -9,7 +9,7 @@ pub struct U2fRegisterRequest {
     pub registered_keys: Vec<RegisteredKey>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 pub struct RegisterRequest {
     pub version: String,
     pub challenge: String
