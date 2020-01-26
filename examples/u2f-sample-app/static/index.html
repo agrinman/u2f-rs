@@ -2,7 +2,6 @@
 <html>
 <head>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/u2f-api@latest/bundle.js"></script>
-    <script type="text/javascript" src="https://demo.yubico.com/js/u2f-api.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
 </head>
 <body>
@@ -13,6 +12,8 @@
     <input type="button" value="Authenticate" onClick="authenticate()">
 
     <script>
+
+        var u2f = window.u2fApi;
 
         /* u2f.ErrorCodes is undefined in Firefox v64 default to zero if it is undefined, same as in the u2f spec */
         const U2F_ERROR_CODES_OK = typeof u2f.ErrorCodes === 'undefined' ?  0 : u2f.ErrorCodes['OK'];
@@ -27,8 +28,8 @@
         }
 
         /* Promisify u2f.register usually taking callback function */
-        const u2fRegisterAsync = (appId, registerRequests, registeredKeys, opt_timeoutSeconds) =>
-            new Promise((resolve, reject) =>  u2f.register(appId, registerRequests, registeredKeys, response => rejectU2fError(resolve, reject, response), opt_timeoutSeconds));
+        const u2fRegisterAsync = (req, opt_timeoutSeconds) =>
+            new Promise((resolve, reject) =>  u2f.register(req, opt_timeoutSeconds, response => rejectU2fError(resolve, reject, response)));
 
         /* Promisify u2f.sign usually taking callback function */
         const u2fSignAsync = (appId, challenge, registeredKeys, opt_timeoutSeconds) =>
@@ -40,10 +41,11 @@
         async function register() {
             try {
                 const req = await fetch('/api/register_request').then(response => response.json());
+                console.log(req);
 
                 const response = await Promise.race([
                     showNotification("Registration"),
-                    u2fRegisterAsync(req.appId, req.registerRequests, req.registeredKeys, 30)
+                    u2fRegisterAsync(req, 30)
                 ]);
 
                 // null when dialog message is cancelled

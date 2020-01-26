@@ -1,7 +1,8 @@
 #[macro_use] extern crate lazy_static;
 #[macro_use] extern crate serde_derive;
 
-use std::io;
+mod util;
+use self::util::*;
 
 use u2f::protocol::*;
 use u2f::messages::*;
@@ -10,10 +11,6 @@ use u2f::register::*;
 use std::sync::Mutex;
 
 use warp::{Filter, Reply};
-use warp::reply::Json;
-use std::borrow::Borrow;
-
-use sodiumoxide::crypto::secretbox;
 
 static APP_ID : &'static str = "https://localhost:30443";
 
@@ -22,15 +19,16 @@ async fn main() {
     pretty_env_logger::init();
     sodiumoxide::init().unwrap();
 
-    // GET /hello/warp => 200 OK with body "Hello, warp!"
-    let index = warp::get().and(warp::path(""));
+    let index = warp::get().and(warp::path::end()).map(index);
 
-    let register = warp::post()
-        .and(warp::path("api/register_request"))
+    let register = warp::get()
+        .and(warp::path("api"))
+        .and(warp::path("register_request"))
         .map(register_request);
 
     let reg_done = warp::post()
-        .and(warp::path("api/register_response"))
+        .and(warp::path("api"))
+        .and(warp::path("register_response"))
         .and(warp::body::json())
         .and(warp::cookie::cookie("challenge"))
         .map(register_response);
@@ -49,31 +47,10 @@ lazy_static! {
         registrations
     };
 
-    static ref COOKIE_KEY: secretbox::Key = { secretbox::gen_key() };
-}
+ }
 
-fn seal(data: &[u8]) -> String {
-    let nonce = secretbox::gen_nonce();
-    let ctxt = secretbox::seal(data, &nonce, &COOKIE_KEY);
-    let out = vec![nonce.0.borrow(), ctxt.as_slice()].concat();
-    base64::encode_config(&out, base64::URL_SAFE_NO_PAD)
-}
-
-fn unseal(data: &str) -> std::result::Result<Vec<u8>, failure::Error> {
-    let out = base64::decode_config(data.as_bytes(), base64::URL_SAFE_NO_PAD)?;
-
-    if out.len() < secretbox::NONCEBYTES {
-        return Err(failure::err_msg("invalid cookie"));
-    }
-
-    let nonce = secretbox::Nonce::from_slice(&out[..secretbox::NONCEBYTES]).unwrap();
-    let ctxt = &out[secretbox::NONCEBYTES..];
-    let message = secretbox::open(ctxt, &nonce, &COOKIE_KEY).map_err(|_| failure::err_msg("decrypt failed"))?;
-    Ok(message)
-}
-
-fn index() -> &'static str {
-    include_str!("static/index.html")
+fn index() -> impl Reply {
+    warp::reply::html(include_str!("static/index.html"))
 }
 
 fn register_request() -> impl warp::Reply {
@@ -117,7 +94,7 @@ fn register_response(response: RegisterResponse, cookie: String) -> impl Reply {
             let resp = warp::reply::json(&Response { status: "success".to_string()});
             warp::reply::with_status(resp, warp::http::StatusCode::OK)
         },
-        Err(e) => {
+        Err(_) => {
             let resp = warp::reply::json(&Response { status: "registration not found".to_string()});
             warp::reply::with_status(resp, warp::http::StatusCode::NOT_FOUND)
         }
