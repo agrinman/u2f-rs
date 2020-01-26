@@ -1,7 +1,8 @@
 [package]
 name = "u2f"
-version = "0.2.0"
-authors = ["Flavio Oliveira <flavio@wisespace.io>"]
+version = "0.3.0"
+authors = ["Flavio Oliveira <flavio@wisespace.io>", "Alex Grinman <me@alexgr.in>"]
+edition = "2018"
 
 description = "Rust FIDO U2F Library"
 license = "MIT OR Apache-2.0"
@@ -16,6 +17,16 @@ travis-ci = { repository = "wisespace-io/u2f-rs" }
 [lib]
 name = "u2f"
 path = "src/lib.rs"
+
+[dev-dependencies]
+serde = "^1.0"
+serde_json = "^1.0"
+lazy_static = "0.2"
+tokio = { version = "0.2", features = ["macros"] }
+warp = "0.2"
+pretty_env_logger = "0.3.1"
+sodiumoxide = "0.2.5"
+failure = "0.1.6"
 
 [dependencies]
 time = "0.1"

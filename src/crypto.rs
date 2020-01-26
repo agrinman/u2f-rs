@@ -11,9 +11,8 @@ use openssl::{bn, ec, hash, nid, sign, x509};
 use std::convert::TryFrom;
 
 // use super::constants::*;
-use u2ferror::U2fError;
+use crate::u2ferror::U2fError;
 use openssl::pkey::Public;
-use std::borrow::Borrow;
 
 // use super::proto::*;
 

@@ -1,5 +1,5 @@
 use protocol::{U2f, Challenge};
-use messages::{RegisterResponse, RegisterRequest, U2fSignRequest, SignResponse};
+use messages::{RegisterResponse, RegisterRequest, SignResponse};
 use register::Registration;
 
 fn verify_register(app_id: &str, req: &str, resp: &str) -> Registration {

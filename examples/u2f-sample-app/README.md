@@ -1,7 +1,3 @@
-# Nightly Rust
-
-The example uses [Rocket](https://github.com/SergioBenitez/Rocket/) so it requires Nightly Rust.
-
 ## Usage
 
 The certificate/private key pair used can be generated via openssl:
