@@ -12,11 +12,10 @@
     <input type="button" value="Authenticate" onClick="authenticate()">
 
     <script>
-
-        var u2f = window.u2fApi;
+        var u2fApi = window.u2fApi;
 
         /* u2f.ErrorCodes is undefined in Firefox v64 default to zero if it is undefined, same as in the u2f spec */
-        const U2F_ERROR_CODES_OK = typeof u2f.ErrorCodes === 'undefined' ?  0 : u2f.ErrorCodes['OK'];
+        const U2F_ERROR_CODES_OK = typeof u2fApi.ErrorCodes === 'undefined' ?  0 : u2fApi.ErrorCodes['OK'];
 
         /* Reject promise if u2f error, translates the error code to an `Error` */
         const rejectU2fError = (resolve, reject, response) => {
@@ -25,15 +24,15 @@
             } else {
                 reject(parseError(response.errorCode));
             }
-        }
+        };
 
         /* Promisify u2f.register usually taking callback function */
         const u2fRegisterAsync = (req, opt_timeoutSeconds) =>
-            new Promise((resolve, reject) =>  u2f.register(req, opt_timeoutSeconds, response => rejectU2fError(resolve, reject, response)));
+            new Promise((resolve, reject) =>  u2fApi.register(req, opt_timeoutSeconds, response => rejectU2fError(resolve, reject, response)));
 
         /* Promisify u2f.sign usually taking callback function */
-        const u2fSignAsync = (appId, challenge, registeredKeys, opt_timeoutSeconds) =>
-            new Promise((resolve, reject) => u2f.sign(appId, challenge, registeredKeys, response => rejectU2fError(resolve, reject, response), opt_timeoutSeconds));
+        const u2fSignAsync = (req, opt_timeoutSeconds) =>
+            new Promise((resolve, reject) => u2fApi.sign(req, opt_timeoutSeconds, response => rejectU2fError(resolve, reject, response)));
 
         /* Get a registration request from the server
         *  Register the key
@@ -101,9 +100,9 @@
         function parseError(errorCode) {
             var message = "Unknown error: " + errorCode;
             // In Firefox v64 u2f.ErrorCodes is undefined
-            if (typeof u2f.ErrorCodes !== 'undefined') {
-                for (name in u2f.ErrorCodes) {
-                    if (u2f.ErrorCodes[name] === errorCode) {
+            if (typeof u2fApi.ErrorCodes !== 'undefined') {
+                for (name in u2fApi.ErrorCodes) {
+                    if (u2fApi.ErrorCodes[name] === errorCode) {
                         message = name;
                         break;
                     }

@@ -1,8 +1,8 @@
 target
+Cargo.lock
+*.pem
 
 # IDEA
 *.iml
 .idea*.*
 .idea/*
-*.pem
-Cargo.lock

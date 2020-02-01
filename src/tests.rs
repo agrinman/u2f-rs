@@ -1,6 +1,6 @@
-use protocol::{U2f, Challenge};
-use messages::{RegisterResponse, RegisterRequest, SignResponse};
-use register::Registration;
+use crate::protocol::{U2f, Challenge};
+use crate::messages::{RegisterResponse, RegisterRequest, SignResponse};
+use crate::register::Registration;
 
 fn verify_register(app_id: &str, req: &str, resp: &str) -> Registration {
     let reg:RegisterRequest = serde_json::from_str(req).unwrap();

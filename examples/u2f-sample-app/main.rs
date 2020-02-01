@@ -35,7 +35,13 @@ async fn main() {
 
     let routes = index.or(register).or(reg_done);
 
+    let cert = include_bytes!("private/cert.pem");
+    let key = include_bytes!("private/key.pem");
+
     warp::serve(routes)
+        .tls()
+        .cert(cert.as_ref())
+        .key(key.as_ref())
         .run(([127, 0, 0, 1], 30443))
         .await;
 }
